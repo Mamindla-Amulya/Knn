@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<!-- How to create Mouse Events for D3 -->
+<html>
+
+  <head>
+    <!-- Load D3 from site -->
+    <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+
+  </head>
+
+  <body>
+    <!-- Begin Javascript -->
+    <script type="text/javascript">
+
+      var w = 300,
+          h = 300,
+          radius = 5;
+
+      var svg = d3.select("body").append("svg").attr({
+        width: w,
+        height: h
+      });
+
+
+
+      var dataset = [
+          ['A',0.62,80],
+	  ['A',1.59,92],
+	  ['A',1.48,92],
+	  ['A',1.48,78],
+	  ['A',1.53,72],
+	  ['A',1.43,60],
+	  ['A',1.79,78],
+	  ['A',1.83,120],
+	  ['A',1, 100],
+	  ['A',1, 80],
+	  ['A',1.89, 80],
+	  ['A',1.93,130],
+	  ['B',1.45,38],
+	  ['B',1.5,20],
+	  ['B',2.9,40],
+	  ['B',2.5,40],
+	  ['B',3,70],
+	  ['B',2.8,50],
+	  ['B',3,30],
+	  ['B',2.1, 39],
+	  ['B',2, 50],
+	  ['B',2.5, 20],
+	  ['B',1.79, 40],
+	  ['B',1.65, 38],
+
+       
+      ];
+
+      // We're passing in a function in d3.max to tell it what we're maxing (x value)
+      var xScale = d3.scale.linear().domain([0, 4.5]).range([0, 400]);
+
+      // We're passing in a function in d3.max to tell it what we're maxing (y value)
+      var yScale = d3.scale.linear().domain([0, 300]).range([0, 600]);
+
+
+      var Data = function(label,x,y){
+	  this.label = label;
+	  this.x = xScale(x);
+	  this.y = yScale(y);
+	}
+
+
+     var Nodes = [];
+     for (var i = 0; i < dataset.length; i++) {
+	var l = dataset[i][0];
+	var h = dataset[i][1];
+	var w = dataset[i][2];
+	Nodes.push(new Data(l,h,w));            
+
+	}
+ console.log(Nodes);
+
+     
+var h = 300;
+var w = 300;
+        svg.append('rect')
+           .attr('x', 0)
+           .attr('y', 0)
+           .attr('height', h)
+           .attr('width', w)
+           .style("stroke", 'blue')
+           .style("fill", "none")
+           .style("stroke-width", 6);
+
+
+
+          svg.selectAll("circle")
+             .data(Nodes)
+             .enter()
+             .append('circle')
+             .attr("r",5)
+             .attr("cx", function(d) { return d.x})
+             .attr("cy", function(d) { return d.y})
+             .attr('fill',function(d){
+             if(d.label == "A") return 'red';
+             if(d.label =="B") return 'orange';
+});
+
+     
+radius = 5;
+var circleAttrs = {
+       cx: function(d) { return xScale(d.x); },
+       cy: function(d) { return yScale(d.y); },
+       r: radius
+  };
+
+    svg.on("click", function() {
+          var coords = d3.mouse(this);
+
+         
+          var newData= {
+            x: Math.round( xScale.invert(coords[0])),  
+            y: Math.round( yScale.invert(coords[1]))
+          };
+
+          dataset.push(newData);   
+
+          svg.selectAll("circle") 
+            .data(dataset)
+            .enter()
+            .append("circle")
+            .attr(circleAttrs)  
+
+
+var x = xScale(newData.x)
+var y = yScale(newData.y)
+      
+    console.log(x,y);
+console.log(newpoint(new Data('',x, y)));
+
+
+
+});
+
+Data.prototype.distanceFrom = function(node){
+   var sqrDist = Math.pow(this.x - node.x,2) + Math.pow(this.y-node.y,2);
+   return Math.sqrt(sqrDist)
+  
+}
+
+
+
+var k = 10;
+function newpoint(node){
+  var dists = [];
+  for(var i=0;i<Nodes.length;i++){
+    var d = node.distanceFrom(Nodes[i]);
+    dists.push({x:Nodes[i].x,y: Nodes[i].y,label:Nodes[i].label,d:d});
+  }
+ console.log(dists)
+
+  var sortedArr = dists.sort(function(a,b){
+     return a.d-b.d;
+  });
+//   console.log(sortedArr)
+
+  var  label = {'A':0,'B':0};
+  
+  for(var i=0;i<k;i++){
+    if(sortedArr[i].label=='A')
+    label.A++
+    if(sortedArr[i].label=='B')
+    label.B++
+  }
+  
+  if(label.A > label.B) 
+  return 'A';
+  if(label.A < label.B)
+  return 'B';
+  
+}
+
+// console.log(newpoint(new Data('',1.48, 90)));
+
+
+  
+      
+    </script>
+  </body>
+</html>
